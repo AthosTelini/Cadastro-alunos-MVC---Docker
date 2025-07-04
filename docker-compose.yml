@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  php-apache:
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    container_name: php-apache-app
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: cadastroalunos
+      POSTGRES_USER: postgres
+      # A linha abaixo instrui o Postgres a confiar nas conexões da sua rede local do Docker
+      POSTGRES_HOST_AUTH_METHOD: trust
+      # A senha abaixo é necessária para a criação inicial, mas não será usada para a conexão.
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  pg_data:
